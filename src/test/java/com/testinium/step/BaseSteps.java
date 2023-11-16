@@ -44,7 +44,6 @@ public class BaseSteps extends BaseTest {
     public static int DEFAULT_MILLISECOND_WAIT_AMOUNT = 100;
 
     private static String SAVED_ATTRIBUTE;
-    private static String SAVED_ATTRIBUTE2;
 
     private String compareText;
 
@@ -88,10 +87,6 @@ public class BaseSteps extends BaseTest {
         element.click();
     }
 
-    private void clickElementBy(String key) {
-        findElement(key).click();
-    }
-
     private void hoverElement(WebElement element) {
         actions.moveToElement(element).build().perform();
     }
@@ -99,15 +94,6 @@ public class BaseSteps extends BaseTest {
     private void hoverElementBy(String key) {
         WebElement webElement = findElement(key);
         actions.moveToElement(webElement).build().perform();
-    }
-
-    private void sendKeyESC(String key) {
-        findElement(key).sendKeys(Keys.ESCAPE);
-
-    }
-
-    private boolean isDisplayed(WebElement element) {
-        return element.isDisplayed();
     }
 
     private boolean isDisplayedBy(By by) {
@@ -148,10 +134,6 @@ public class BaseSteps extends BaseTest {
         return findElement(key).getAttribute(attribute);
     }
 
-    @Step("Print page source")
-    public void printPageSource() {
-        System.out.println(getPageSource());
-    }
 
     public void javaScriptClicker(WebDriver driver, WebElement element) {
 
@@ -1296,352 +1278,15 @@ public class BaseSteps extends BaseTest {
         logger.info(path + " dosyası " + key + " elementine yüklendi.");
     }
 
-    @Step("Musteri Kodu elementinin readonly oldugunu kontrol et")
-    public void checkReadOnly() {
-        WebElement some_element = driver.findElement(By.id("__BVID__70"));
-        String readonly = some_element.getAttribute("readonly");
-        Assertions.assertNotNull(readonly);
-        logger.info("Musteri Kodu Elementinin Sadece Okunabilir Oldugu Kontrol Edildi");
-    }
 
-    private static HashMap<String, String> dataList = new HashMap<>();
 
-    public void storeData(String key, String value) {
-        dataList.put(key, value);
 
-    }
 
-    public String getData(String key) {
-        return dataList.get(key);
-    }
 
-    @Step("js local getir")
-    public void jsLocal() {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        String storageItem = js.executeScript("return window.localStorage.getItem('x-mfa-code')").toString();
-        JSONObject obj = new JSONObject(storageItem);
-        String pageName = obj.getJSONObject("x-mfa").getString("accessToken");
-        webHeader.put("accesToken", pageName);
-        System.out.println("AAAS: " + pageName);
-    }
 
-    @Step("Onbellek Temizle")
-    public void clearCache() throws InterruptedException {
 
-        driver.manage().deleteAllCookies();//*[@id="checkbox"]
-        driver.get("chrome://settings/clearBrowserData");
-        Thread.sleep(2000);
-        for (int i = 0; i < 7; i++) {
 
-            driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.TAB);
-            Thread.sleep(100);
-        }
-        driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.ENTER);
-        Thread.sleep(3000);
 
-    }
 
-    @Step("Url'den authCode alinir")
-    public void codeFromUrl() {
-        driver.navigate().back();
-        String url = driver.getCurrentUrl();
-        String newCode = url.substring(86, 118);
-        webHeader.put("authCode", newCode);
-        logger.info("URL'den " + newCode + " Bilgisi Alindi.");
-    }
-
-    @Step("OTP kodu girilir")
-    public void takeOtpCode() throws IOException, InterruptedException {
-
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, "21");
-        Request request = new Request.Builder().url("https://sapportaluat.petrolofisi.com.tr/porder/api/v1/user/mfasms?code=" + webHeader.get("authCode") + "&id=4032").method("POST", body).addHeader("Content-Type", "application/json").build();
-        okhttp3.Response response = client.newCall(request).execute();
-        String otpcode = response.headers().get("x-mfa-code");
-        driver.findElement(By.id("__BVID__20")).click();
-        for (char ch : otpcode.toCharArray())
-            driver.findElement(By.id("__BVID__20")).sendKeys(Character.toString(ch));
-        logger.info("OTP Code Olarak " + otpcode + " Yazıldı");
-        waitBySeconds(2);
-
-    }
-
-
-    @Step("OTP Code'u Network Loglarindan Bul ve Yazdir")
-    public static void logBrowserConsoleLogs() {
-        all(LogType.PERFORMANCE);
-    }
-
-    public static void all(String logTypes) {
-
-        int loopCount = 0;
-        String urlNow = "";
-        urlNow = driver.getCurrentUrl();
-
-        if (urlNow.contains("sys/selectaccount")) {
-
-
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi <----- ");
-
-        }
-        if (urlNow.contains("/mfa")) {
-            System.out.println("---> Network " + logTypes + " loglarından otp kod aranıyor. ");
-
-            List<LogEntry> logEntries = driver.manage().logs().get(logTypes).getAll();
-            for (LogEntry entry : logEntries) {
-
-                final String regex = "x-mfa-code: [0-9]+";
-                final String networkLogs = new Date(entry.getTimestamp()) + " " + entry.getLevel().getName() + " " + entry.getMessage();
-                final Pattern pattern = Pattern.compile(regex);
-                final Matcher matcher = pattern.matcher(networkLogs);
-                if (matcher.find()) {
-                    System.out.println("---> OTP Code Olarak : " + matcher.group(0) + " Bulundu. ");
-
-                    for (int i = 1; i <= matcher.groupCount(); i++) {
-                        System.out.println("Group " + i + ": " + matcher.group(i));
-                    }
-                    String otpCode = matcher.group(0).replaceAll("[^0-9]+", "");
-                    driver.findElement(By.xpath("//input[@class='form-control']")).sendKeys(otpCode);
-                    System.out.println("---> Bulunan Otp Code: " + otpCode + " Dogrulama Kodu Alanina Yazildi");
-                    driver.findElement(By.xpath("//button[text()='Giriş yap']")).click();
-                    System.out.println("---> Giris Yap Butonuna Tiklandi.");
-                }
-            }
-        }
-
-    }
-
-
-    @Step("OTP Code'u Network Loglarindan Bul Ve Yazdir")
-    public static void logBrowserNetworkPerformance() {
-
-        log(LogType.PERFORMANCE);
-    }
-
-
-    public static void log(String logTypes) {
-
-        int loopCount = 0;
-        String urlAtTheMoment = "";
-        urlAtTheMoment = driver.getCurrentUrl();
-        if (urlAtTheMoment.contains("sys/selectaccount")) {
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi !! ");
-        }
-        if (urlAtTheMoment.contains("/mfa")) {
-            System.out.println("---> Network " + logTypes + " loglarından otp kod aranıyor. ");
-
-            List<LogEntry> logEntries = driver.manage().logs().get(logTypes).getAll();
-            for (LogEntry entry : logEntries) {
-
-                final String regex = "x-mfa-code: [0-9]+";
-                final String networkLogs = new Date(entry.getTimestamp()) + " " + entry.getLevel().getName() + " " + entry.getMessage();
-                final Pattern pattern = Pattern.compile(regex);
-                final Matcher matcher = pattern.matcher(networkLogs);
-                if (matcher.find()) {
-                    System.out.println(" --> OTP Code Olarak : " + matcher.group(0) + " Bulundu. ");
-
-                    for (int i = 1; i <= matcher.groupCount(); i++) {
-                        System.out.println("Group " + i + ": " + matcher.group(i));
-                    }
-                    String otpCode = matcher.group(0).replaceAll("[^0-9]+", "");
-                    driver.findElement(By.xpath("//input[@class='form-control']")).sendKeys(otpCode);
-                    System.out.println("Bulunan Otp Code: " + otpCode + " Dogrulama Kodu Alanina Yazildi");
-                    driver.findElement(By.xpath("//button[text()='Giriş yap']")).click();
-                    System.out.println("Giris Yap Elementine Tiklandi.");
-                }
-            }
-        } else {
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi !! ");
-        }
-
-    }
-
-    @Step("OTP Code'u Network Loglarindan Bul Ve Yaz")
-    public static void logPerfData() {
-
-        logPerf(LogType.PERFORMANCE);
-    }
-
-
-    public static void logPerf(String logTypes) {
-
-        int loopCount = 0;
-        String urlAtTheMoment = "";
-        urlAtTheMoment = driver.getCurrentUrl();
-
-        if (urlAtTheMoment.contains("sys/selectaccount")) {
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi !! ");
-        }
-        if (urlAtTheMoment.contains("/mfa")) {
-            System.out.println("---> Network " + logTypes + " loglarından otp kod aranıyor. ");
-
-            List<LogEntry> logEntries = driver.manage().logs().get(logTypes).getAll();
-            for (LogEntry entry : logEntries) {
-
-                final String regex = "x-mfa-code: [0-9]+";
-                final String networkLogs = new Date(entry.getTimestamp()) + " " + entry.getLevel().getName() + " " + entry.getMessage();
-                final Pattern pattern = Pattern.compile(regex);
-                final Matcher matcher = pattern.matcher(networkLogs);
-                if (matcher.find()) {
-                    System.out.println(" --> OTP Code Olarak : " + matcher.group(0) + " Bulundu. ");
-
-                    for (int i = 1; i <= matcher.groupCount(); i++) {
-                        System.out.println("Group " + i + ": " + matcher.group(i));
-                    }
-                    String otpCode = matcher.group(0).replaceAll("[^0-9]+", "");
-                    driver.findElement(By.xpath("//input[@class='form-control']")).sendKeys(otpCode);
-                    System.out.println("Bulunan Otp Code: " + otpCode + " Dogrulama Kodu Alanina Yazildi");
-                    driver.findElement(By.xpath("//button[text()='Giriş yap']")).click();
-                    System.out.println("Giris Yap Elementine Tiklandi.");
-                }
-            }
-        }
-        if (urlAtTheMoment.contains("sys/selectaccount")) {
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi !! ");
-        }
-
-    }
-
-    @Step("Tek Numara Icin OTP Code'u Network Loglarindan Bul Ve Yaz")
-
-    public static void logPerfForOneNumber() {
-
-        logPerfE(LogType.PERFORMANCE);
-    }
-
-
-    public static void logPerfE(String logTypes) {
-
-        int loopCount = 0;
-        String urlAtTheMoment = "";
-        urlAtTheMoment = driver.getCurrentUrl();
-        if (urlAtTheMoment.contains("sys/selectaccount")) {
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi !! ");
-        }
-        if (urlAtTheMoment.contains("/mfa")) {
-            System.out.println("---> Network " + logTypes + " loglarından otp kod aranıyor. ");
-
-
-            List<LogEntry> logEntries = driver.manage().logs().get(logTypes).getAll();
-            for (LogEntry entry : logEntries) {
-
-                final String regex = "x-mfa-code: [0-9]+";
-                final String networkLogs = new Date(entry.getTimestamp()) + " " + entry.getLevel().getName() + " " + entry.getMessage();
-                final Pattern pattern = Pattern.compile(regex);
-                final Matcher matcher = pattern.matcher(networkLogs);
-                if (matcher.find()) {
-                    System.out.println(" --> OTP Code Olarak : " + matcher.group(0) + " Bulundu. ");
-
-                    for (int i = 1; i <= matcher.groupCount(); i++) {
-                        System.out.println("Group " + i + ": " + matcher.group(i));
-                    }
-                    String otpCode = matcher.group(0).replaceAll("[^0-9]+", "");
-                    driver.findElement(By.xpath("//input[@class='form-control']")).sendKeys(otpCode);
-                    System.out.println("Bulunan Otp Code: " + otpCode + " Dogrulama Kodu Alanina Yazildi");
-                    driver.findElement(By.xpath("//button[text()='Giriş yap']")).click();
-                    System.out.println("Giris Yap Elementine Tiklandi.");
-                }
-            }
-        } else {
-            System.out.println("-----> Bu Hesap Icin OTP Dogrulama Ekrani Acilmadi !! ");
-        }
-    }
-
-
-    @Step({"<key> li elementi kontrol et varsa <message> mesajını hata olarak göster",
-            "Find element by <key> if exist show error message <message>"})
-    public void isElementExist(String key, String message) {
-
-        List<WebElement> elements = findElements(key);
-        waitBySeconds(7);
-
-        if (elements.size() == 0) {
-
-            logger.info(key + " Ile Karsilasilmadi.");
-
-        }
-        if (elements.size() > 0) {
-
-            Assertions.fail(message +
-                    "\n *" +
-                    "\n********************FAIL********************" +
-                    "\n *" +
-                    "\n " + message +
-                    "\n *" +
-                    "\n********************FAIL********************" +
-                    "\n *");
-        }
-    }
-
-    @Step({"Element <key> varsa yonlendirme yaptıgını kontrol et yoksa hata mesajı ver <message>"})
-    public void isElementExistAndClickable(String key, String message) {
-        List<WebElement> elements = findElements(key);
-        if (elements.size() == 0) {
-
-            logger.info(message);
-        }
-        if (elements.size() > 0) {
-
-            WebElement element = findElement(key);
-
-            if (element.isDisplayed() && element.isEnabled()) {
-
-                logger.info(key + " Elementi mevcut ve aktif olarak yönlendirme yapiyor.");
-            }
-        }
-    }
-
-
-  @Step("<fileName> Adli Dosya Indirilmismi Kontrol Et")
-    public void fileTest(String fileName) {
-
-      File file = new File("./desktop");
-      File[] dirContents = file.listFiles();
-      for (int i = 0; i < dirContents.length; i++) {
-
-          if (dirContents[i].getName().contains(fileName)) {
-
-              logger.info(fileName + " Adlı Dosya mevcut. ");
-
-
-          } else {
-              logger.info(fileName + " Adlı Dosya Mevcut Degil. ");
-
-          }
-
-      }
-  }
-
-    @Step({"<key> Elementine Göre Sayfanin Son Elementini Bul ve Tarihin <expectedText> Oldugunu Dogrula Eger Degilse Hata Mesaji Ver <message>"})
-    public void clickNextElement(String key, String expectedText, String message) throws InterruptedException {
-        WebElement element = findElement(key);
-
-        int Toplam  = Integer.parseInt(findElement(key).getText());
-        int Bolen   = 50;
-        int Kalan   = Toplam % Bolen;
-        int Sonraki = Toplam / Bolen;
-
-        logger.info(Sonraki + " Kadar Tiklayinca Son Sayfaya Varilacak.");
-
-        for (int i = 0; i < Sonraki; i++) {
-
-            Thread.sleep(500);
-            element.click();
-
-        }
-
-        String sonElement = "//tr[@data-position='"+ Kalan +"']//div[contains(text(),'"+ expectedText +"')]";
-        driver.findElement(By.xpath(sonElement));
-        if (driver.findElement(By.xpath(sonElement)) !=null){
-
-            logger.info("Son Elementin Tarihi Beklenen Tarih olan " + expectedText + "Ile Ayni." );
-        }
-        if (driver.findElement(By.xpath(sonElement)) == null){
-
-            Assertions.fail(message);
-        };
-
-    }
   }
 
