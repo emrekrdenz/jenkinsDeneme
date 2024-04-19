@@ -27,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -144,6 +143,14 @@ public class BaseSteps extends BaseTest {
     public void javascriptclicker(WebElement element) {
         JavascriptExecutor executor = (JavascriptExecutor) driver;
         executor.executeScript("arguments[0].click();", element);
+    }
+
+
+    @Step({"Click to element <key>",
+            "<key> elementine tıkla"})
+    public void clickElement(String key) {
+        clickElement(findElement(key));
+        logger.info(key + " elementine tıklandı.");
     }
 
     @Step({"Wait <value> seconds", "<int> saniye bekle"})
@@ -1035,20 +1042,7 @@ public class BaseSteps extends BaseTest {
     }
 
 
-    @Step("<key> olarak <index> indexi seçersem")
-    public void choosingIndexFromDemandNo(String key, String index) {
 
-        try {
-            TimeUnit.SECONDS.sleep(3);
-
-            List<WebElement> anchors = findElements(key);
-            WebElement anchor = anchors.get(Integer.parseInt(index));
-            anchor.click();
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     @Step("Siparis durmununu <kartDurumu> elementinden bul")
@@ -1115,6 +1109,7 @@ public class BaseSteps extends BaseTest {
             logger.info(key + " elementine " + getValue(variable) + " texti yazıldı.");
         }
     }
+
 
     @Step("<key> olarak comboboxtan <text> seçimini yap")
     public void selectDropDown(String key, String text) {

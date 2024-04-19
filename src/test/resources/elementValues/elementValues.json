@@ -1,7 +1,22 @@
 [
   {
-    "key": "",
-    "value": "",
-    "type": ""
+    "key": "kullaniciGirisButton",
+    "value": "//button[@data-target='#modal-user-login']",
+    "type": "xpath"
+  },
+  {
+    "key": "kullaniciAdi",
+    "value": "username",
+    "type": "id"
+  },
+  {
+    "key": "sifre",
+    "value": "password",
+    "type": "id"
+  },
+  {
+    "key": "girisYapButonu",
+    "value": "//button[@class='btn btn-danger']",
+    "type": "xpath"
   }
 ]

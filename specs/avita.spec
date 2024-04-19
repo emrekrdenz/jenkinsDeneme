@@ -10,3 +10,31 @@ avita
 Tags:Sc1
 * "https://avita.com.tr" adresine gidilir
 * "3" saniye bekle
+* "https://www.kitapyurdu.com" adresine gidilir
+* "3" saniye bekle
+* "https://avita.com.tr" adresine gidilir
+* "3" saniye bekle
+* "https://www.kitapyurdu.com" adresine gidilir
+* "3" saniye bekle
+* "https://avita.com.tr" adresine gidilir
+* "3" saniye bekle
+* "https://www.kitapyurdu.com" adresine gidilir
+* "3" saniye bekle
+* "https://avita.com.tr" adresine gidilir
+* "3" saniye bekle
+* "https://www.kitapyurdu.com" adresine gidilir
+* "3" saniye bekle
+
+
+
+deneme
+----------------
+Tags:sc2
+* "https://avita.com.tr" adresine gidilir
+* "3" saniye bekle
+* "kullaniciGirisButton" elementine tıkla
+* "3" saniye bekle
+* "emre" textini "kullaniciAdi" elemente yaz
+* "esdsdsmre" textini "sifre" elemente yaz
+* "girisYapButonu" elementine tıkla
+* "5" saniye bekle
