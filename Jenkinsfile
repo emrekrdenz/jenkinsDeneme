@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs 'nodejs 23'
+        maven 'mavenJenkins'
     }
 
     stages {
@@ -18,12 +19,14 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                // HTML rapor üretmek için:
-                sh '/opt/homebrew/bin/gauge run specs -r html-report'
-            }
-        }
+       stage('Test with Gauge (Maven)') {
+           steps {
+               // Gauge Maven plugin'i ile testleri çalıştır
+               sh 'mvn gauge:execute -DspecsDir=specs -DadditionalFlags="-r html-report"'
+           }
+       }
+
+
 
         stage('Publish Report') {
             steps {
