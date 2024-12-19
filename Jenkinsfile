@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+     tools {
+            nodejs 'nodejs 23' // Global Tool Configuration'da verdiğiniz isim
+        }
+
 
     stages {
         stage('Checkout') {
