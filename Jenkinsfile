@@ -1,10 +1,9 @@
 pipeline {
     agent any
 
-     tools {
-            nodejs 'nodejs 23' // Global Tool Configuration'da verdiğiniz isim
-        }
-
+    tools {
+        nodejs 'nodejs 23'
+    }
 
     stages {
         stage('Checkout') {
@@ -21,14 +20,16 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '/opt/homebrew/bin/gauge run specs --html-report'
+                // HTML rapor üretmek için:
+                sh '/opt/homebrew/bin/gauge run specs -r html-report'
             }
         }
 
         stage('Publish Report') {
             steps {
+                // HTML rapor varsayılan olarak reports/html-report altına oluşturulur
                 publishHTML(target: [
-                    reportDir: 'reports',
+                    reportDir: 'reports/html-report',
                     reportFiles: 'index.html',
                     reportName: 'Gauge Test Raporu'
                 ])
@@ -38,7 +39,7 @@ pipeline {
 
     post {
         always {
-            junit 'reports/*.xml'
+
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
         }
     }
