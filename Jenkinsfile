@@ -1,8 +1,9 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'nodejs 23' // Global Tool Configuration’da belirlediğiniz isim
+    environment {
+        // Burada PATH'e /opt/homebrew/bin ekliyoruz.
+        PATH = "/opt/homebrew/bin:${env.PATH}"
     }
 
     stages {
