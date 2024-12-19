@@ -11,7 +11,7 @@ pipeline {
         stage('Setup') {
             steps {
                 // Node.js kurulumunu sağlamak için
-                tool name: 'NodeJS 14', type: 'NodeJS'
+                tool name: 'nodejs 23', type: 'NodeJS'
                 sh 'npm install'
             }
         }
