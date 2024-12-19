@@ -1,60 +1,47 @@
 pipeline {
     agent any
 
-    tools {
-        // Jenkins'te tanımlı JDK ve Maven sürümlerini kullanın
-        maven 'mavenJenkins'
-    }
-
     environment {
-        // `gauge` komutunun bulunduğu dizini PATH'e ekleyin
-        PATH = "/opt/homebrew/bin:${env.PATH}"
+        // PATH'e Maven ve Homebrew bin dizinlerini ekliyoruz
+        PATH = "/Users/testinium/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/mavenJenkins/bin:/opt/homebrew/bin:${env.PATH}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Kaynak kodunu Git deposundan çek
-                git url: 'https://github.com/emrekrdenz/jenkinsDeneme.git', branch: 'master'
+                git 'https://github.com/emrekrdenz/jenkinsDeneme.git'
             }
         }
 
         stage('Build') {
             steps {
-                // Maven ile projeyi derle
+                // Doğru şekilde sh komutunu kullanıyoruz
                 sh 'mvn clean install'
-            }
-        }
-
-        stage('Verify Gauge Installation') {
-            steps {
-                // PATH değişkenini ve gauge'ın bulunduğu yolu doğrula
-                sh '''
-                    echo "Current PATH: $PATH"
-                    which gauge
-                    gauge -v
-                '''
             }
         }
 
         stage('Test') {
             steps {
-                // Gauge testlerini çalıştır
-                sh 'gauge run specs --junit-report'
+                sh 'mvn test'
             }
-            post {
-                always {
-                    // JUnit formatında test raporlarını topla
-                    junit 'reports/**/*.xml'
-                }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh 'scp target/myapp.jar user@server:/path/to/deploy'
             }
         }
     }
 
     post {
-        always {
-            // Derlenen jar dosyalarını arşivle
-            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        success {
+            echo 'Pipeline başarıyla tamamlandı!'
+        }
+        failure {
+            echo 'Pipeline başarısız oldu.'
         }
     }
 }
