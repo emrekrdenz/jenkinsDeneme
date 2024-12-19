@@ -23,12 +23,17 @@ pipeline {
             }
         }
 
-       stage('Test with Gauge (Maven)') {
-           steps {
-               // Gauge Maven plugin'i ile testleri çalıştır
-               sh 'mvn gauge:execute -DspecsDir=specs -DadditionalFlags="-r html-report"'
-           }
-       }
+         stage('Build and Test Compile') {
+             steps {
+                 sh 'mvn clean test-compile'
+             }
+         }
+
+         stage('Test with Gauge (Maven)') {
+             steps {
+                 sh 'mvn gauge:execute -DspecsDir=specs -DadditionalFlags="-r html-report"'
+             }
+         }
 
 
 
