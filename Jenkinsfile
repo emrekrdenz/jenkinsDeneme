@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'nodejs 23' // Global Tool Configuration’da belirlediğiniz isim
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -10,8 +14,6 @@ pipeline {
 
         stage('Setup') {
             steps {
-                // Node.js kurulumunu sağlamak için
-                tool name: 'nodejs 23', type: 'NodeJS'
                 sh 'npm install'
             }
         }
