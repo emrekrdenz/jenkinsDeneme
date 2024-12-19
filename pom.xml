@@ -8,7 +8,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <!--        <gauge.version>0.6.9</gauge.version>-->
         <gauge.version>0.6.9</gauge.version>
         <selenium.version>3.141.59</selenium.version>
