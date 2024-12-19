@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Jenkins'te tanımlı JDK ve Maven sürümlerini kullanın
-        maven 'Maven'
+        maven 'mavenJenkins'
     }
 
     environment {
