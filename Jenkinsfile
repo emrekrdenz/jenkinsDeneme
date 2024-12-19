@@ -6,6 +6,10 @@ pipeline {
         maven 'mavenJenkins'
     }
 
+     environment {
+            PATH = "/opt/homebrew/bin:${env.PATH}"
+        }
+
     stages {
         stage('Checkout') {
             steps {
