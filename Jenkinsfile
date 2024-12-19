@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // Burada PATH'e /opt/homebrew/bin ekliyoruz.
-        PATH = "/opt/homebrew/bin:${env.PATH}"
-    }
 
     stages {
         stage('Checkout') {
@@ -21,7 +17,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'gauge run specs --html-report'
+                sh '/opt/homebrew/bin/gauge run specs --html-report'
             }
         }
 
